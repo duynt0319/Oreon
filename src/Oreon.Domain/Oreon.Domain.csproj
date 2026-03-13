@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- 
+    Domain Layer: No framework dependencies!
+    Domain must be pure .NET with no reference to ASP.NET Core, EF Core, or other frameworks.
+    All external dependencies should be abstracted via interfaces defined in Domain.
+  -->
+
+</Project>
