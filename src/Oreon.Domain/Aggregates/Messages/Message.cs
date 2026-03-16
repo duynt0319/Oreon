@@ -1,3 +1,4 @@
+using Oreon.Domain.Aggregates.Members;
 using Oreon.Domain.DomainEvents;
 using Oreon.Domain.Shared;
 
@@ -5,9 +6,9 @@ namespace Oreon.Domain.Aggregates.Messages;
 
 public sealed class Message : AggregateRoot<MessageId>
 {
-    public Guid SenderId { get; private set; }
+    public MemberId SenderMemberId { get; private set; }
     public string SenderUsername { get; private set; }
-    public Guid RecipientId { get; private set; }
+    public MemberId RecipientMemberId { get; private set; }
     public string RecipientUsername { get; private set; }
     public string Content { get; private set; }
     public DateTime? DateRead { get; private set; }
@@ -18,28 +19,31 @@ public sealed class Message : AggregateRoot<MessageId>
     private Message() { }
 
     public static Message Create(
-        Guid senderId,
+        MemberId senderMemberId,
         string senderUsername,
-        Guid recipientId,
+        MemberId recipientMemberId,
         string recipientUsername,
-        string content)
+        string content
+    )
     {
         if (string.IsNullOrWhiteSpace(content))
             throw new ArgumentException("Message content cannot be empty.", nameof(content));
-        if (senderId == recipientId)
-            throw new InvalidOperationException("A user cannot send a message to themselves.");
+        if (senderMemberId == recipientMemberId)
+            throw new InvalidOperationException("A member cannot send a message to themselves.");
 
         var message = new Message
         {
-            SenderId = senderId,
+            SenderMemberId = senderMemberId,
             SenderUsername = senderUsername,
-            RecipientId = recipientId,
+            RecipientMemberId = recipientMemberId,
             RecipientUsername = recipientUsername,
             Content = content,
-            MessageSent = DateTime.UtcNow
+            MessageSent = DateTime.UtcNow,
         };
 
-        message.AddDomainEvent(new MessageSentDomainEvent(senderId, recipientId, DateTimeOffset.UtcNow));
+        message.AddDomainEvent(
+            new MessageSentDomainEvent(senderMemberId, recipientMemberId, DateTimeOffset.UtcNow)
+        );
         return message;
     }
 

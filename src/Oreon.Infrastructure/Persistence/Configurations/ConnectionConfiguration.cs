@@ -8,6 +8,8 @@ public sealed class ConnectionConfiguration : IEntityTypeConfiguration<Connectio
 {
     public void Configure(EntityTypeBuilder<Connection> builder)
     {
+        builder.ToTable("Connections");
+
         builder.HasKey(c => c.ConnectionId);
     }
 }

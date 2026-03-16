@@ -13,4 +13,3 @@
 //    Task<MemberDto> GetMemberByUsernameAsync(string username, CancellationToken ct = default);
 //    Task<string> GetGenderAsync(string username, CancellationToken ct = default);
 //}
-

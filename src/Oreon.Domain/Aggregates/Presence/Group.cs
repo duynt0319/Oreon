@@ -18,14 +18,16 @@ public sealed class Group
 
     public void AddConnection(Connection connection)
     {
-        if (connection is null) throw new ArgumentNullException(nameof(connection));
+        if (connection is null)
+            throw new ArgumentNullException(nameof(connection));
         _connections.Add(connection);
     }
 
     public bool RemoveConnection(string connectionId)
     {
         var connection = _connections.FirstOrDefault(c => c.ConnectionId == connectionId);
-        if (connection is null) return false;
+        if (connection is null)
+            return false;
         _connections.Remove(connection);
         return true;
     }

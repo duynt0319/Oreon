@@ -15,13 +15,9 @@ public sealed class AppRoleConfiguration : IEntityTypeConfiguration<AppRole>
         builder.ToTable("AspNetRoles");
 
         // Index for performance
-        builder.HasIndex(r => r.NormalizedName)
-            .HasDatabaseName("RoleNameIndex")
-            .IsUnique();
+        builder.HasIndex(r => r.NormalizedName).HasDatabaseName("RoleNameIndex").IsUnique();
 
         // Constraints
-        builder.Property(r => r.Name)
-            .IsRequired()
-            .HasMaxLength(256);
+        builder.Property(r => r.Name).IsRequired().HasMaxLength(256);
     }
 }

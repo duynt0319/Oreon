@@ -10,53 +10,78 @@ public sealed class Member : AggregateRoot<MemberId>
 
     private Member() { }
 
-    public string Username { get; private set; }
+    public Guid AppUserId { get; private set; }
+
     public DateOnly DateOfBirth { get; private set; }
-    public string KnownAs { get; private set; }
+
+    public string KnownAs { get; private set; } = string.Empty;
+
     public DateTime Created { get; private set; }
+
     public DateTime LastActive { get; private set; }
-    public string Gender { get; private set; }
-    public string Introduction { get; private set; }
-    public string LookingFor { get; private set; }
-    public string Interests { get; private set; }
-    public string City { get; private set; }
-    public string Country { get; private set; }
+
+    public string Gender { get; private set; } = string.Empty;
+
+    public string Introduction { get; private set; } = string.Empty;
+
+    public string LookingFor { get; private set; } = string.Empty;
+
+    public string Interests { get; private set; } = string.Empty;
+
+    public string City { get; private set; } = string.Empty;
+
+    public string Country { get; private set; } = string.Empty;
 
     public IReadOnlyCollection<Photo> Photos => _photos.AsReadOnly();
 
-    /// <summary>Creates a new Member (validates business rules).</summary>
+    /// <summary>
+    /// Creates a new Member and binds it to an AppUser.
+    /// </summary>
     public static Member Create(
-        string username,
+        Guid appUserId,
         DateOnly dateOfBirth,
         string knownAs,
         string gender,
         string city,
-        string country)
+        string country
+    )
     {
-        Guard.AgainstNullOrWhiteSpace(username, nameof(username));
+        Guard.AgainstCondition(appUserId == Guid.Empty, "AppUserId is required.");
         Guard.AgainstNullOrWhiteSpace(knownAs, nameof(knownAs));
         Guard.AgainstNullOrWhiteSpace(gender, nameof(gender));
+        Guard.AgainstNullOrWhiteSpace(city, nameof(city));
+        Guard.AgainstNullOrWhiteSpace(country, nameof(country));
 
         var age = DateHelper.CalculateAge(dateOfBirth);
-        if (age < 18) throw new InvalidAgeException();
+        if (age < 18)
+        {
+            throw new InvalidAgeException();
+        }
+
+        var utcNow = DateTime.UtcNow;
 
         return new Member
         {
-            Username = username.ToLowerInvariant(),
+            AppUserId = appUserId,
             DateOfBirth = dateOfBirth,
-            KnownAs = knownAs,
-            Gender = gender,
-            City = city,
-            Country = country,
-            Created = DateTime.UtcNow,
-            LastActive = DateTime.UtcNow
+            KnownAs = knownAs.Trim(),
+            Gender = gender.Trim(),
+            City = city.Trim(),
+            Country = country.Trim(),
+            Created = utcNow,
+            LastActive = utcNow,
+            Introduction = string.Empty,
+            LookingFor = string.Empty,
+            Interests = string.Empty,
         };
     }
 
-    /// <summary>Reconstitutes a Member from persisted data (no validation).</summary>
+    /// <summary>
+    /// Reconstitutes a Member from persistence.
+    /// </summary>
     public static Member FromPersistence(
         Guid id,
-        string username,
+        Guid appUserId,
         DateOnly dateOfBirth,
         string knownAs,
         DateTime created,
@@ -66,12 +91,13 @@ public sealed class Member : AggregateRoot<MemberId>
         string lookingFor,
         string interests,
         string city,
-        string country)
+        string country
+    )
     {
         return new Member
         {
-            Id = new MemberId(id),
-            Username = username,
+            Id = MemberId.Of(id),
+            AppUserId = appUserId,
             DateOfBirth = dateOfBirth,
             KnownAs = knownAs,
             Created = created,
@@ -81,24 +107,28 @@ public sealed class Member : AggregateRoot<MemberId>
             LookingFor = lookingFor,
             Interests = interests,
             City = city,
-            Country = country
+            Country = country,
         };
     }
 
-    public void UpdateLastActive() => LastActive = DateTime.UtcNow;
+    public void UpdateLastActive()
+    {
+        LastActive = DateTime.UtcNow;
+    }
 
     public void UpdateProfile(
         string introduction,
         string lookingFor,
         string interests,
         string city,
-        string country)
+        string country
+    )
     {
-        Introduction = introduction;
-        LookingFor = lookingFor;
-        Interests = interests;
-        City = city;
-        Country = country;
+        Introduction = introduction?.Trim() ?? string.Empty;
+        LookingFor = lookingFor?.Trim() ?? string.Empty;
+        Interests = interests?.Trim() ?? string.Empty;
+        City = city?.Trim() ?? string.Empty;
+        Country = country?.Trim() ?? string.Empty;
     }
 
     public Photo AddPhoto(string url, string publicId)
@@ -106,16 +136,18 @@ public sealed class Member : AggregateRoot<MemberId>
         Guard.AgainstNullOrWhiteSpace(url, nameof(url));
 
         var isMain = !_photos.Any();
-        var photo = new Photo(url, publicId, isMain, Id.Value);
+        var photo = new Photo(url, publicId, isMain, Id);
         _photos.Add(photo);
 
         AddDomainEvent(new PhotoUploadedDomainEvent(Id, DateTimeOffset.UtcNow));
+
         return photo;
     }
 
     public void DeletePhoto(Guid photoId)
     {
-        var photo = _photos.FirstOrDefault(p => p.Id != null && p.Id.Value == photoId)
+        var photo =
+            _photos.FirstOrDefault(p => p.Id != null && p.Id.Value == photoId)
             ?? throw new InvalidOperationException($"Photo {photoId} not found.");
 
         Guard.AgainstCondition(photo.IsMain, "Cannot delete the main photo.");
@@ -125,15 +157,23 @@ public sealed class Member : AggregateRoot<MemberId>
 
     public void SetMainPhoto(Guid photoId)
     {
-        var photo = _photos.FirstOrDefault(p => p.Id != null && p.Id.Value == photoId)
+        var photo =
+            _photos.FirstOrDefault(p => p.Id != null && p.Id.Value == photoId)
             ?? throw new InvalidOperationException($"Photo {photoId} not found.");
 
-        if (photo.IsMain) return;
+        if (photo.IsMain)
+        {
+            return;
+        }
 
         foreach (var p in _photos)
+        {
             p.SetIsMain(p.Id != null && p.Id.Value == photoId);
+        }
     }
 
-    /// <summary>Used by repository when reconstituting from persistence.</summary>
-    internal void AddExistingPhoto(Photo photo) => _photos.Add(photo);
+    internal void AddExistingPhoto(Photo photo)
+    {
+        _photos.Add(photo);
+    }
 }

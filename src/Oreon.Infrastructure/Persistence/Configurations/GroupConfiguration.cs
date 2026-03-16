@@ -8,11 +8,11 @@ public sealed class GroupConfiguration : IEntityTypeConfiguration<Group>
 {
     public void Configure(EntityTypeBuilder<Group> builder)
     {
+        builder.ToTable("Groups");
+
         builder.HasKey(g => g.Name);
 
-        builder.HasMany(g => g.Connections)
-            .WithOne()
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasMany(g => g.Connections).WithOne().OnDelete(DeleteBehavior.Cascade);
 
         builder.Navigation(g => g.Connections).HasField("_connections");
     }

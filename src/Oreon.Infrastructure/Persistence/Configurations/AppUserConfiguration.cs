@@ -14,25 +14,5 @@ public sealed class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     {
         // Table name (default is AspNetUsers, but can customize)
         builder.ToTable("AspNetUsers");
-
-        // Additional indexes for performance
-        builder.HasIndex(u => u.NormalizedUserName)
-            .HasDatabaseName("UserNameIndex")
-            .IsUnique();
-
-        builder.HasIndex(u => u.NormalizedEmail)
-            .HasDatabaseName("EmailIndex");
-
-        // Constraints
-        builder.Property(u => u.UserName)
-            .IsRequired()
-            .HasMaxLength(256);
-
-        builder.Property(u => u.Email)
-            .HasMaxLength(256);
-
-        // If you need to add custom properties to ApplicationUser in the future:
-        // builder.Property(u => u.CustomProperty)
-        //     .HasMaxLength(100);
     }
 }

@@ -22,7 +22,7 @@ public sealed class CurrentUserService : ICurrentUserService
     public Guid GetUserId()
     {
         var userIdClaim = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
+
         if (string.IsNullOrEmpty(userIdClaim))
             return Guid.Empty;
 
@@ -58,9 +58,7 @@ public sealed class CurrentUserService : ICurrentUserService
         if (User is null)
             return Array.Empty<string>();
 
-        var roles = User.FindAll(ClaimTypes.Role)
-            .Select(c => c.Value)
-            .ToList();
+        var roles = User.FindAll(ClaimTypes.Role).Select(c => c.Value).ToList();
 
         return roles.AsReadOnly();
     }

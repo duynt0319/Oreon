@@ -1,19 +1,24 @@
+using Oreon.Domain.Aggregates.Members;
+
 namespace Oreon.Domain.Aggregates.Likes;
 
 public sealed class UserLike
 {
-    public Guid SourceUserId { get; private set; }
-    public Guid TargetUserId { get; private set; }
+    public MemberId SourceMemberId { get; private set; }
+    public MemberId TargetMemberId { get; private set; }
 
     private UserLike() { }
 
-    public UserLike(Guid sourceUserId, Guid targetUserId)
+    public UserLike(MemberId sourceMemberId, MemberId targetMemberId)
     {
-        if (sourceUserId == Guid.Empty) throw new ArgumentException("SourceUserId is required.", nameof(sourceUserId));
-        if (targetUserId == Guid.Empty) throw new ArgumentException("TargetUserId is required.", nameof(targetUserId));
-        if (sourceUserId == targetUserId) throw new InvalidOperationException("A user cannot like themselves.");
+        if (sourceMemberId == null || sourceMemberId.Value == Guid.Empty)
+            throw new ArgumentException("SourceMemberId is required.", nameof(sourceMemberId));
+        if (targetMemberId == null || targetMemberId.Value == Guid.Empty)
+            throw new ArgumentException("TargetMemberId is required.", nameof(targetMemberId));
+        if (sourceMemberId == targetMemberId)
+            throw new InvalidOperationException("A member cannot like themselves.");
 
-        SourceUserId = sourceUserId;
-        TargetUserId = targetUserId;
+        SourceMemberId = sourceMemberId;
+        TargetMemberId = targetMemberId;
     }
 }

@@ -30,10 +30,9 @@
 //            return Ok(users);
 //        }
 
-
 //        [Authorize(Policy = "RequireAdminRole")]
 //        [HttpPost("edit-roles/{username}")]
-//        public async Task<ActionResult> EditRoles(string username, [FromQuery]string roles) 
+//        public async Task<ActionResult> EditRoles(string username, [FromQuery]string roles)
 //        {
 //            if (string.IsNullOrEmpty(roles)) return BadRequest("You must select at least one role");
 //            var selectedRoles = roles.Split(',').ToArray();
@@ -50,7 +49,6 @@
 
 //            return Ok(await _userManager.GetRolesAsync(user));
 //        }
-
 
 //        [Authorize(Policy = "ModeratorPhotoRole")]
 //        [HttpGet("photos-to-moderate")]

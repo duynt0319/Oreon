@@ -6,7 +6,8 @@ internal static class DateHelper
     {
         var today = DateOnly.FromDateTime(DateTime.Today);
         var age = today.Year - dateOfBirth.Year;
-        if (dateOfBirth > today.AddYears(-age)) age--;
+        if (dateOfBirth > today.AddYears(-age))
+            age--;
         return age;
     }
 }

@@ -9,9 +9,11 @@ public static class Guard
         return value;
     }
 
-    public static T AgainstNull<T>(T value, string paramName) where T : class
+    public static T AgainstNull<T>(T value, string paramName)
+        where T : class
     {
-        if (value is null) throw new ArgumentNullException(paramName);
+        if (value is null)
+            throw new ArgumentNullException(paramName);
         return value;
     }
 
@@ -24,6 +26,7 @@ public static class Guard
 
     public static void AgainstCondition(bool condition, string message)
     {
-        if (condition) throw new InvalidOperationException(message);
+        if (condition)
+            throw new InvalidOperationException(message);
     }
 }

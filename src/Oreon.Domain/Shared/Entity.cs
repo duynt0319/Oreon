@@ -6,8 +6,10 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
 
     public bool Equals(Entity<TId> other)
     {
-        if (other is null) return false;
-        if (ReferenceEquals(this, other)) return true;
+        if (other is null)
+            return false;
+        if (ReferenceEquals(this, other))
+            return true;
         return Id?.Equals(other.Id) ?? false;
     }
 
@@ -15,7 +17,8 @@ public abstract class Entity<TId> : IEquatable<Entity<TId>>
 
     public override int GetHashCode() => Id?.GetHashCode() ?? 0;
 
-    public static bool operator ==(Entity<TId> left, Entity<TId> right) => left?.Equals(right) ?? right is null;
+    public static bool operator ==(Entity<TId> left, Entity<TId> right) =>
+        left?.Equals(right) ?? right is null;
 
     public static bool operator !=(Entity<TId> left, Entity<TId> right) => !(left == right);
 }

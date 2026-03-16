@@ -9,11 +9,20 @@ using Oreon.Infrastructure.Identity;
 
 namespace Oreon.Infrastructure.Persistence;
 
-public class DataContext : IdentityDbContext<AppUser, AppRole, Guid,
-    IdentityUserClaim<Guid>, IdentityUserRole<Guid>, IdentityUserLogin<Guid>,
-    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
+public class DataContext
+    : IdentityDbContext<
+        AppUser,
+        AppRole,
+        Guid,
+        IdentityUserClaim<Guid>,
+        IdentityUserRole<Guid>,
+        IdentityUserLogin<Guid>,
+        IdentityRoleClaim<Guid>,
+        IdentityUserToken<Guid>
+    >
 {
-    public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+    public DataContext(DbContextOptions<DataContext> options)
+        : base(options) { }
 
     public DbSet<Member> Members { get; set; }
     public DbSet<Photo> Photos { get; set; }
@@ -24,9 +33,7 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, Guid,
 
     protected override void ConfigureConventions(ModelConfigurationBuilder builder)
     {
-        builder.Properties<DateOnly>()
-            .HaveConversion<DateOnlyConverter>()
-            .HaveColumnType("date");
+        builder.Properties<DateOnly>().HaveConversion<DateOnlyConverter>().HaveColumnType("date");
 
         base.ConfigureConventions(builder);
     }

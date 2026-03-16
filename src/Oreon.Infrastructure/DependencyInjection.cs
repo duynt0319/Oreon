@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,45 +12,52 @@ using Oreon.Infrastructure.Identity;
 using Oreon.Infrastructure.Identity.Services;
 using Oreon.Infrastructure.Persistence;
 using Oreon.Infrastructure.Services;
-using System.Text;
 
 namespace Oreon.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
         // Database Context
         services.AddDbContext<DataContext>(opt =>
-            opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+        );
 
         // ASP.NET Core Identity Configuration
-        services.AddIdentityCore<AppUser>(opt =>
-        {
-            opt.Password.RequireDigit = true;
-            opt.Password.RequireLowercase = true;
-            opt.Password.RequireUppercase = true;
-            opt.Password.RequireNonAlphanumeric = false;
-            opt.Password.RequiredLength = 6;
-            opt.User.RequireUniqueEmail = true;
-        })
-        .AddRoles<AppRole>()
-        .AddRoleManager<RoleManager<AppRole>>()
-        .AddSignInManager<SignInManager<AppUser>>()
-        .AddEntityFrameworkStores<DataContext>();
+        services
+            .AddIdentityCore<AppUser>(opt =>
+            {
+                opt.Password.RequireDigit = true;
+                opt.Password.RequireLowercase = true;
+                opt.Password.RequireUppercase = true;
+                opt.Password.RequireNonAlphanumeric = false;
+                opt.Password.RequiredLength = 6;
+                opt.User.RequireUniqueEmail = true;
+            })
+            .AddRoles<AppRole>()
+            .AddRoleManager<RoleManager<AppRole>>()
+            .AddSignInManager<SignInManager<AppUser>>()
+            .AddEntityFrameworkStores<DataContext>();
 
         // JWT Authentication Configuration
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["TokenKey"])),
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(configuration["TokenKey"])
+                    ),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
                 };
 
                 // Support authentication via query string for SignalR
@@ -62,7 +70,7 @@ public static class DependencyInjection
                         if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
                             context.Token = accessToken;
                         return Task.CompletedTask;
-                    }
+                    },
                 };
             });
 

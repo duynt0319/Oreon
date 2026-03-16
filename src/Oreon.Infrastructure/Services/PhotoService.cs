@@ -1,9 +1,9 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Oreon.Application.Abstractions.Services;
-using Oreon.Application.Common.Settings;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using Oreon.Application.Abstractions.Services;
+using Oreon.Application.Common.Settings;
 
 namespace Oreon.Infrastructure.Services;
 
@@ -13,10 +13,7 @@ public sealed class PhotoService : IPhotoService
 
     public PhotoService(IOptions<CloudinarySettings> config)
     {
-        var acc = new Account(
-            config.Value.CloudName,
-            config.Value.Apikey,
-            config.Value.ApiSecret);
+        var acc = new Account(config.Value.CloudName, config.Value.Apikey, config.Value.ApiSecret);
 
         _cloudinary = new Cloudinary(acc);
     }
@@ -31,8 +28,12 @@ public sealed class PhotoService : IPhotoService
             var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(file.FileName, stream),
-                Transformation = new Transformation().Height(500).Width(500).Crop("fill").Gravity("face"),
-                Folder = "da-net7"
+                Transformation = new Transformation()
+                    .Height(500)
+                    .Width(500)
+                    .Crop("fill")
+                    .Gravity("face"),
+                Folder = "da-net7",
             };
             uploadResult = await _cloudinary.UploadAsync(uploadParams);
         }

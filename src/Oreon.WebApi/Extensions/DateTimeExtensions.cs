@@ -8,7 +8,8 @@ namespace Oreon.WebApi.Extensions
 
             var age = today.Year - dob.Year;
 
-            if (dob > today.AddYears(-age)) age--;
+            if (dob > today.AddYears(-age))
+                age--;
             return age;
         }
     }

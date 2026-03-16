@@ -1,7 +1,7 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Oreon.Infrastructure.Identity;
-using System.Text.Json;
 
 namespace Oreon.Infrastructure.Persistence
 {
@@ -13,10 +13,13 @@ namespace Oreon.Infrastructure.Persistence
             await context.SaveChangesAsync();
         }
 
-        public static async Task SeedUsers(UserManager<AppUser> userManager,
-            RoleManager<AppRole> roleManager)
+        public static async Task SeedUsers(
+            UserManager<AppUser> userManager,
+            RoleManager<AppRole> roleManager
+        )
         {
-            if (await userManager.Users.AnyAsync()) return;
+            if (await userManager.Users.AnyAsync())
+                return;
 
             var userData = await File.ReadAllTextAsync("Data/UserSeedData.json");
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -26,7 +29,7 @@ namespace Oreon.Infrastructure.Persistence
             {
                 new AppRole { Name = "Member" },
                 new AppRole { Name = "Admin" },
-                new AppRole { Name = "Moderator" }
+                new AppRole { Name = "Moderator" },
             };
 
             foreach (var role in roles)
@@ -39,7 +42,7 @@ namespace Oreon.Infrastructure.Persistence
                 {
                     Id = Guid.NewGuid(),
                     UserName = dto.UserName.ToLower(),
-                    Email = $"{dto.UserName.ToLower()}@example.com"
+                    Email = $"{dto.UserName.ToLower()}@example.com",
                 };
 
                 await userManager.CreateAsync(user, "Pa$$w0rd");
@@ -52,7 +55,7 @@ namespace Oreon.Infrastructure.Persistence
             {
                 Id = Guid.NewGuid(),
                 UserName = "admin",
-                Email = "admin@example.com"
+                Email = "admin@example.com",
             };
 
             await userManager.CreateAsync(admin, "Pa$$w0rd");
@@ -69,7 +72,8 @@ namespace Oreon.Infrastructure.Persistence
             string Interests,
             string City,
             string Country,
-            List<SeedPhotoDto> Photos);
+            List<SeedPhotoDto> Photos
+        );
 
         private sealed record SeedPhotoDto(string Url, bool IsMain);
     }

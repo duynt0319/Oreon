@@ -2,7 +2,8 @@ namespace Oreon.WebApi.SignalR
 {
     public class PresenceTracker
     {
-        private static readonly Dictionary<string, List<string>> OnlineUsers = new Dictionary<string, List<string>>();
+        private static readonly Dictionary<string, List<string>> OnlineUsers =
+            new Dictionary<string, List<string>>();
 
         public Task<bool> UserConnected(string username, string connectionId)
         {
@@ -12,9 +13,10 @@ namespace Oreon.WebApi.SignalR
                 if (OnlineUsers.ContainsKey(username))
                 {
                     OnlineUsers[username].Add(connectionId);
-                } else
+                }
+                else
                 {
-                    OnlineUsers.Add(username, new List<string> {connectionId});
+                    OnlineUsers.Add(username, new List<string> { connectionId });
                     isOnline = true;
                 }
             }
@@ -26,11 +28,12 @@ namespace Oreon.WebApi.SignalR
             bool isOffline = false;
             lock (OnlineUsers)
             {
-                if (!OnlineUsers.ContainsKey(username)) return Task.FromResult(isOffline);
+                if (!OnlineUsers.ContainsKey(username))
+                    return Task.FromResult(isOffline);
 
                 OnlineUsers[username].Remove(connectionId);
 
-                if (OnlineUsers[username].Count == 0) 
+                if (OnlineUsers[username].Count == 0)
                 {
                     OnlineUsers.Remove(username);
                     isOffline = true;
@@ -42,7 +45,7 @@ namespace Oreon.WebApi.SignalR
         public Task<string[]> GetOnlineUsers()
         {
             string[] onlineUsers;
-            lock(OnlineUsers)
+            lock (OnlineUsers)
             {
                 onlineUsers = OnlineUsers.OrderBy(k => k.Key).Select(k => k.Key).ToArray();
             }

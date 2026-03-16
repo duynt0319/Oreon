@@ -30,21 +30,33 @@ namespace API
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DatingApp API", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                c.AddSecurityDefinition(
+                    "Bearer",
+                    new OpenApiSecurityScheme
                     {
-                        new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } },
-                        Array.Empty<string>()
+                        Description = "JWT Authorization header using the Bearer scheme",
+                        Name = "Authorization",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.ApiKey,
+                        Scheme = "Bearer",
                     }
-                });
+                );
+                c.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer",
+                                },
+                            },
+                            Array.Empty<string>()
+                        },
+                    }
+                );
             });
 
             var app = builder.Build();
@@ -60,17 +72,17 @@ namespace API
 
             app.UseMiddleware<ExceptionMiddleware>();
 
-            app.UseCors(x => x
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials()
-                .WithOrigins("https://localhost:4200"));
+            app.UseCors(x =>
+                x.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                    .WithOrigins("https://localhost:4200")
+            );
 
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
@@ -79,7 +91,6 @@ namespace API
             app.MapHub<PresenceHub>("hubs/presence");
             //app.MapHub<MessageHub>("hubs/message");
             app.MapFallbackToController("Index", "Fallback");
-
 
             using var scope = app.Services.CreateScope();
             var services = scope.ServiceProvider;
